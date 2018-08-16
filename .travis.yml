@@ -1,3 +1,13 @@
 language: node_js
 node_js:
 - '8'
+deploy:
+  deploy:
+  provider: npm
+  email: csantanapr@apache.org
+  api_key:
+    secure: MFfIV0bGNJtwHEn87ShJ9jhAX/mb7D6lcaOsxN92cRQw7RwVVKiwiSM3UR23acNdRVhJ1G2gqZlqaYjkho4/RXC9sJ5ZC/nCpkLo0+rcDMdyju0LSGroliVL83nSMvLRc1fvEiEbR1CalyWnrb57UKkXNh3GdVp6G1rS0Cdvc7J/Xhrkk+IJUhYJiANx9YQq24kZqikFZEpBdMuw2TVhCi/L9SiMkXIVopOr/LYraiNjvKzScrczv1Aw7oG4eZ0Y6eePRMmf/oGBnQwolLcLec4Ef7eq/Czk0LsNVudmfKGXMJZdDjf26mnRWHDJklsWytpXQMtQTMMjmUxsMNXzEDaM9l25IEmtoqhgrtuzdECMWKtQK2RWfipgjDoCzJGZHTTGhcpn9PBItzdutGRnemsNdE3Vo4b8Avrt87dqs5z8W/wXhW4EIyF58qxvzKydElFB7IYLMk9IHSqdLNnB1QkBEmTQJR8CczMEfYNLM00zLowqGM/BY2Gvqkabquazs0W2pF/VN3yd2jiltsq/fgMUmktUNgs50YMChYvlvVN4+TQVK5qvIhlrXyaLrx22GTjSRdYq2ZXnasGs38SUKDm4pR7HrgPVWB3l5TW4vFXdRRDkrt5KEWB5V2OkFqYJug6nJ9Tfr+tPJ+hz2u4ry/qvSXKL4Fcmd74ahUcRuyM=
+  on:
+    tags: true
+    repo: ibm-functions/iam-token-manager-nodejs
+  
