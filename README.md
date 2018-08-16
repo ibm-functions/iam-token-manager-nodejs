@@ -1,6 +1,6 @@
 # IBM IAM Token Manager library
 
-[![Build Status](https://travis-ci.org/ibm-functions/iam-token-manager.svg?branch=master)](https://travis-ci.org/ibm-functions/iam-token-manager)
+[![Build Status](https://travis-ci.org/ibm-functions/iam-token-manager-nodejs.svg?branch=master)](https://travis-ci.org/ibm-functions/iam-token-manager-nodejs)
 [![License](https://img.shields.io/badge/license-Apache--2.0-blue.svg)](http://www.apache.org/licenses/LICENSE-2.0)
 [![JavaScript Style Guide](https://img.shields.io/badge/code_style-standard-brightgreen.svg)](https://standardjs.com)
 
