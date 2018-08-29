@@ -19,14 +19,22 @@ const m = new itm({
 })
 ```
 
-Use the function `getToken` to get an IAM token. This function returns a `Promise`.
+Use the function `getToken` to get an IAM acess token. This function returns a `Promise`.
 ```javascript
-m.getToken().then(token => console.log(token))
+m.getToken().then(token => console.log('Authorization:', 'Bearer', token))
+```
+output:
+```bash'
+Authorization: Bearer eyJhbGciOiJIUz......sgrKIi8hdFs
 ```
 
 Use the function `getAuthHeader` to get a Bearer HTTP Authorization header including the token. This function returns a `Promise`.
 ```javascript
-m.getToken().then(header => console.log(header))
+m.getAuthHeader().then(header => console.log('Authorization:', header))
+```
+output:
+```bash
+Authorization: Bearer eyJhbGciOiJIUz......sgrKIi8hdFs
 ```
 
 ## Using with OpenWhisk client library
