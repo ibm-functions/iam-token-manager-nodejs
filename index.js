@@ -169,7 +169,9 @@ module.exports = class TokenManager {
           error.statusCode = resp.statusCode // the http status code
           error.error = resp.body // the error body
           error.options = options
-          error.error.error = error.error.errorMessage
+          if (typeof error.error === 'object') {
+            error.error.error = error.error.errorMessage
+          }
           return Promise.reject(error)
         } else {
           // otherwise, the response body is the expected return value
