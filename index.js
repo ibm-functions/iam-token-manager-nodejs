@@ -14,7 +14,7 @@ module.exports = class TokenManager {
    */
   constructor (options) {
     this.tokenInfo = {}
-    this.iamUrl = options.iamUrl || 'https://iam.bluemix.net/identity/token'
+    this.iamUrl = options.iamUrl || 'https://iam.cloud.ibm.com/identity/token'
     if (options.iamApikey) {
       this.iamApikey = options.iamApikey
     } else {
