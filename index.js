@@ -32,15 +32,9 @@ module.exports = class TokenManager {
    */
   getToken () {
     return new Promise((resolve, reject) => {
-      if (!this.tokenInfo.access_token || this.isRefreshTokenExpired()) {
-        // 1. request an initial token
+      if (!this.tokenInfo.access_token || this.isTokenExpired()) {
+        // 1. request an initial token or 2. refresh an expired token
         return this.requestToken().then(tokenResponse => {
-          this.saveTokenInfo(tokenResponse)
-          resolve(this.tokenInfo.access_token)
-        }).catch(error => reject(error))
-      } else if (this.isTokenExpired()) {
-        // 2. refresh a token
-        return this.refreshToken().then(tokenResponse => {
           this.saveTokenInfo(tokenResponse)
           resolve(this.tokenInfo.access_token)
         }).catch(error => reject(error))
