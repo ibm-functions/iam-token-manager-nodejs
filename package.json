@@ -8,7 +8,7 @@
   ],
   "engines": {
     "node": "^12.x",
-    "npm": "6.4.1"
+    "npm": "^6.x"
   },
   "scripts": {
     "test": "npm run lint && npm run jest",
