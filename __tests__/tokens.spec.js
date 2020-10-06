@@ -19,3 +19,20 @@ test('should fetch auth header', () => {
   needle.mockResolvedValue(Promise.resolve(validToken))
   return tm.getAuthHeader().then(h => expect(h).toEqual(`Bearer ${validToken.body.access_token}`))
 })
+test('should call requestToken() only once with many parallel getAuthHeader() calls', () => {
+  needle.mockResolvedValue(Promise.resolve(validToken))
+  const spy = jest.spyOn(tm, 'requestToken')
+  const spy2 = jest.spyOn(tm, 'getToken')
+
+  const proms = []
+  for (let i = 0; i < 10; i++) {
+    proms.push(tm.getAuthHeader().then(h => expect(h).toEqual(`Bearer ${validToken.body.access_token}`)))
+  }
+  return Promise.all(proms)
+    .then(() => {
+      expect(spy).toHaveBeenCalledTimes(1)
+      expect(spy2).toHaveBeenCalledTimes(10)
+      spy.mockRestore()
+      spy2.mockRestore()
+    })
+})
