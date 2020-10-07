@@ -35,6 +35,7 @@ module.exports = class TokenManager {
    *    and depending on the result
    *    3a) use the newly returned and cached token
    *    3b) in case of error, trigger a fresh loading attempt
+   * 4. If there is no token available and also no loading in progress, trigger the token loading
    *
    * @returns {Promise} - resolved with token value
    */
@@ -67,6 +68,7 @@ module.exports = class TokenManager {
             loadToken()
           })
       } else {
+        // 4. just trigger the token loading
         loadToken()
       }
     })
