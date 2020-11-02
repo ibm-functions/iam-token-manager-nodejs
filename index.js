@@ -14,6 +14,10 @@ module.exports = class TokenManager {
    */
   constructor (options) {
     this.tokenInfo = {}
+
+    // while a token is being loaded, this promise will be defined, yet unsettled
+    this.tokenLoadingPromise = undefined
+
     this.iamUrl = options.iamUrl || 'https://iam.cloud.ibm.com/identity/token'
     if (options.iamApikey) {
       this.iamApikey = options.iamApikey
@@ -24,23 +28,48 @@ module.exports = class TokenManager {
   /**
    * This function sends an access token back through a Promise. The source of the token
    * is determined by the following logic:
-   * 1. If this class is managing tokens and does not yet have one, make a request for one
-   * 2. If this class is managing tokens and the token has expired, refresh it
-   * 3. If this class is managing tokens and has a valid token stored, send it
+   * 1. If the token is expired (that is, we already have one, but it is no longer valid, or about to time out), we
+   *    load a new one
+   * 2. If the token is not expired, we obviously have a valid token, so just resolve with it's value
+   * 3. If we haven't got a token at all, but a loading is already in process, we wait for the loading promise to settle
+   *    and depending on the result
+   *    3a) use the newly returned and cached token
+   *    3b) in case of error, trigger a fresh loading attempt
+   * 4. If there is no token available and also no loading in progress, trigger the token loading
    *
    * @returns {Promise} - resolved with token value
    */
   getToken () {
     return new Promise((resolve, reject) => {
-      if (!this.tokenInfo.access_token || this.isTokenExpired()) {
-        // 1. request an initial token or 2. refresh an expired token
-        return this.requestToken().then(tokenResponse => {
-          this.saveTokenInfo(tokenResponse)
-          resolve(this.tokenInfo.access_token)
-        }).catch(error => reject(error))
-      } else {
-        // 3. use valid managed token
+      const loadToken = () => {
+        this.loadToken()
+          .then(() => {
+            resolve(this.tokenInfo.access_token)
+          })
+          .catch(error => reject(error))
+      }
+
+      if (this.isTokenExpired()) {
+        // 1. load a new token
+        loadToken()
+      } else if (this.tokenInfo.access_token) {
+        // 2. return the cached valid token
         resolve(this.tokenInfo.access_token)
+      } else if (this.tokenLoadingPromise) {
+        // 3. a token loading operation is already running
+        this.tokenLoadingPromise
+          .then(() => {
+            // 3a) it was successful, so return the fresh token
+            resolve(this.tokenInfo.access_token)
+          })
+          .catch(() => {
+            // 3b) give it one more try - obviously, we hoped for a Promise triggered by another invocation to
+            // return the token for us, but it didn't work out. So we need to trigger another attempt.
+            loadToken()
+          })
+      } else {
+        // 4. just trigger the token loading
+        loadToken()
       }
     })
   }
@@ -52,6 +81,24 @@ module.exports = class TokenManager {
     return this.getToken().then(token => {
       return `Bearer ${token}`
     })
+  }
+  /**
+   * Triggers the remote IAM API token call, saves the response and resolves the loading promise
+   * with the access_token
+   *
+   * @returns {Promise}
+   */
+  loadToken () {
+    // reset buffered tokenInfo, as we're about to load a new token
+    this.tokenInfo = {}
+
+    // let other callers know that we're currently loading a new token
+    this.tokenLoadingPromise = this.requestToken().then(tokenResponse => {
+      this.saveTokenInfo(tokenResponse)
+      return this.tokenInfo.access_token
+    })
+
+    return this.tokenLoadingPromise
   }
   /**
    * Request an IAM token using an API key and IAM URL.
@@ -107,6 +154,11 @@ module.exports = class TokenManager {
    * @returns {boolean}
    */
   isTokenExpired () {
+    // the token cannot be considered expired, if we don't have one (yet)
+    if (!this.tokenInfo || !this.tokenInfo.access_token) {
+      return false
+    }
+
     if (!this.tokenInfo.expires_in || !this.tokenInfo.expiration) {
       return true
     }
