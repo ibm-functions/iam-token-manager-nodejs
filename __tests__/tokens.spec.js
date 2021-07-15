@@ -36,3 +36,16 @@ test('should call requestToken() only once with many parallel getAuthHeader() ca
       spy2.mockRestore()
     })
 })
+test('should properly timeout on network slowness', () => {
+  jest.setTimeout(120000)
+  needle.mockResolvedValue(new Promise((resolve) => {
+    setTimeout(() => { resolve(validToken) }, 100000) // current limit is 90000 for the Promise timeout
+  }))
+  return tm.getAuthHeader()
+    .then(resp => {
+      jest.fail('Got response, but expected an Error')
+    })
+    .catch(err => {
+      expect(err).toEqual(new Error('Promise timed out after 90000 milliseconds.'))
+    })
+})
