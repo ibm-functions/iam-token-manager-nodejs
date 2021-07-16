@@ -25,6 +25,28 @@ module.exports = class TokenManager {
       throw new Error(`Missing iamApikey parameter.`)
     }
   }
+
+  // wraps a promise with a promise that supports timing out after a given amount of
+  // milliseconds. Wrapping promise throws, when the timeout occurs.
+  getPromiseWithExpiration (prom, timeout) {
+    let timeoutHandle
+
+    return new Promise((resolve, reject) => {
+      timeoutHandle = setTimeout(() => {
+        reject(new Error('Promise timed out after ' + timeout + ' milliseconds.'))
+      }, timeout)
+
+      prom.then((result) => {
+        clearTimeout(timeoutHandle)
+        resolve(result)
+      })
+        .catch((error) => {
+          clearTimeout(timeoutHandle)
+          reject(error)
+        })
+    })
+  }
+
   /**
    * This function sends an access token back through a Promise. The source of the token
    * is determined by the following logic:
@@ -204,7 +226,9 @@ module.exports = class TokenManager {
    * @returns {Promise}
    */
   sendRequest (options) {
-    return needle(options.method.toLowerCase(),
+    options.response_timeout = 60000 // 1 minute max. response time allowed
+    options.read_timeout = 30000 // 30 seconds read time limit after headers were received
+    const needleProm = needle(options.method.toLowerCase(),
       options.url,
       options.body || qs.stringify(options.form),
       options)
@@ -218,11 +242,16 @@ module.exports = class TokenManager {
           if (typeof error.error === 'object') {
             error.error.error = error.error.errorMessage
           }
-          return Promise.reject(error)
+          throw error // this will trigger the next available catch() in the Promise chain
         } else {
           // otherwise, the response body is the expected return value
           return resp.body
         }
       })
+
+    // wrap the actual loading promise which allows the HTTP request to take 60 seconds
+    // with a promise that times out after 90 seconds, so we don't get stuck with an
+    // unsettled promise
+    return this.getPromiseWithExpiration(needleProm, 90000)
   }
 }
