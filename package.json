@@ -1,6 +1,6 @@
 {
   "name": "@ibm-functions/iam-token-manager",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "Helper library to handle IBM Cloud IAM Tokens",
   "main": "index.js",
   "files": [
@@ -24,7 +24,7 @@
   },
   "devDependencies": {
     "jest": "^27.0.0",
-    "standard": "^11.0.1"
+    "standard": "^16.0.4"
   },
   "publishConfig": {
     "access": "public"
