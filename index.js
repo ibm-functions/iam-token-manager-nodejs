@@ -22,7 +22,7 @@ module.exports = class TokenManager {
     if (options.iamApikey) {
       this.iamApikey = options.iamApikey
     } else {
-      throw new Error(`Missing iamApikey parameter.`)
+      throw new Error('Missing iamApikey parameter.')
     }
   }
 
@@ -95,6 +95,7 @@ module.exports = class TokenManager {
       }
     })
   }
+
   /**
    * This function returns the Authorization header value including the token
    * @returns {Promise}
@@ -104,6 +105,7 @@ module.exports = class TokenManager {
       return `Bearer ${token}`
     })
   }
+
   /**
    * Triggers the remote IAM API token call, saves the response and resolves the loading promise
    * with the access_token
@@ -122,6 +124,7 @@ module.exports = class TokenManager {
 
     return this.tokenLoadingPromise
   }
+
   /**
    * Request an IAM token using an API key and IAM URL.
    *
@@ -129,12 +132,12 @@ module.exports = class TokenManager {
    * @returns {Promise}
    */
   requestToken () {
-    let options = {
+    const options = {
       url: this.iamUrl,
       method: 'POST',
       headers: {
         'Content-type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic Yng6Yng='
+        Authorization: 'Basic Yng6Yng='
       },
       form: {
         grant_type: 'urn:ibm:params:oauth:grant-type:apikey',
@@ -143,6 +146,7 @@ module.exports = class TokenManager {
     }
     return this.sendRequest(options)
   }
+
   /**
    * Refresh an IAM token using a refresh token.
    *
@@ -150,12 +154,12 @@ module.exports = class TokenManager {
    * @returns {Promise}
    */
   refreshToken () {
-    let options = {
+    const options = {
       url: this.iamUrl,
       method: 'POST',
       headers: {
         'Content-type': 'application/x-www-form-urlencoded',
-        'Authorization': 'Basic Yng6Yng='
+        Authorization: 'Basic Yng6Yng='
       },
       form: {
         grant_type: 'refresh_token',
@@ -164,6 +168,7 @@ module.exports = class TokenManager {
     }
     return this.sendRequest(options)
   }
+
   /**
    * Check if currently stored token is expired.
    *
@@ -184,13 +189,14 @@ module.exports = class TokenManager {
     if (!this.tokenInfo.expires_in || !this.tokenInfo.expiration) {
       return true
     }
-    var fractionOfTtl = 0.8
-    var timeToLive = this.tokenInfo.expires_in
-    var expireTime = this.tokenInfo.expiration
-    var currentTime = Math.floor(Date.now() / 1000)
-    var refreshTime = expireTime - (timeToLive * (1.0 - fractionOfTtl))
+    const fractionOfTtl = 0.8
+    const timeToLive = this.tokenInfo.expires_in
+    const expireTime = this.tokenInfo.expiration
+    const currentTime = Math.floor(Date.now() / 1000)
+    const refreshTime = expireTime - (timeToLive * (1.0 - fractionOfTtl))
     return refreshTime < currentTime
   }
+
   /**
    * Used as a fail-safe to prevent the condition of a refresh token expiring,
    * which could happen after around 30 days. This function will return true
@@ -204,11 +210,12 @@ module.exports = class TokenManager {
     if (!this.tokenInfo.expiration) {
       return true
     }
-    var sevenDays = 7 * 24 * 3600
-    var currentTime = Math.floor(Date.now() / 1000)
-    var newTokenTime = this.tokenInfo.expiration + sevenDays
+    const sevenDays = 7 * 24 * 3600
+    const currentTime = Math.floor(Date.now() / 1000)
+    const newTokenTime = this.tokenInfo.expiration + sevenDays
     return newTokenTime < currentTime
   }
+
   /**
    * Save the response from the IAM service request to the object's state.
    *
@@ -219,6 +226,7 @@ module.exports = class TokenManager {
   saveTokenInfo (tokenResponse) {
     this.tokenInfo = tokenResponse
   }
+
   /**
    * Creates the request.
    * @param options - method, url, form
