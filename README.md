@@ -1,3 +1,8 @@
+
+# DEPRECATED
+
+`@ibm-functions/iam-token-manager` is not maintained anymore
+
 # IBM IAM Token Manager library
 
 [![Build Status](https://travis-ci.org/ibm-functions/iam-token-manager-nodejs.svg?branch=master)](https://travis-ci.org/ibm-functions/iam-token-manager-nodejs)
